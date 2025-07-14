@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ThermoScale - Temperature Converter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --secondary: #10b981;
+      --background: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-light: #64748b;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--background);
+      color: var(--text);
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+    }
+    
+    .temperature-input {
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .temperature-input:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+    }
+    
+    .unit-select {
+      transition: all 0.3s ease;
+    }
+    
+    .unit-select:hover {
+      border-color: var(--primary);
+    }
+    
+    .convert-btn {
+      transition: all 0.3s ease;
+      background: var(--primary);
+    }
+    
+    .convert-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    .temperature-card {
+      transition: all 0.3s ease;
+      perspective: 1000px;
+    }
+    
+    .temperature-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .thermometer {
+      height: 200px;
+      width: 30px;
+      background: linear-gradient(to top, #ef4444 0%, #f97316 20%, #facc15 40%, #22c55e 60%, #3b82f6 80%, #8b5cf6 100%);
+      border-radius: 15px;
+      position: relative;
+    }
+    
+    .mercury {
+      width: 30px;
+      background: #ef4444;
+      border-radius: 0 0 15px 15px;
+      transition: height 0.5s ease-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="gradient-bg text-white py-8 shadow-lg">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+          <i class="fas fa-thermometer-half text-3xl"></i>
+          <h1 class="text-3xl font-bold tracking-tight">ThermoScale</h1>
+        </div>
+        <div class="text-sm opacity-90">Precision Temperature Conversion</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow container mx-auto px-4 py-12">
+    <div class="max-w-4xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <!-- Converter Card -->
+        <div class="temperature-card bg-white rounded-xl shadow-xl p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold text-gray-800">Temperature Converter</h2>
+            <div class="text-blue-500">
+              <i class="fas fa-chart-line text-2xl"></i>
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <label for="temperature" class="block text-sm font-medium text-gray-700 mb-1">Temperature Value</label>
+              <div class="relative">
+                <input 
+                  type="number" 
+                  id="temperature" 
+                  class="temperature-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter temperature"
+                >
+                <div class="absolute right-3 top-3 text-gray-400">
+                  <i class="fas fa-temperature-high"></i>
+                </div>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="fromUnit" class="block text-sm font-medium text-gray-700 mb-1">From</label>
+                <select 
+                  id="fromUnit" 
+                  class="unit-select w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="celsius">Celsius (°C)</option>
+                  <option value="fahrenheit">Fahrenheit (°F)</option>
+                  <option value="kelvin">Kelvin (K)</option>
+                </select>
+              </div>
+              
+              <div>
+                <label for="toUnit" class="block text-sm font-medium text-gray-700 mb-1">To</label>
+                <select 
+                  id="toUnit" 
+                  class="unit-select w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="fahrenheit">Fahrenheit (°F)</option>
+                  <option value="celsius" selected>Celsius (°C)</option>
+                  <option value="kelvin">Kelvin (K)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <button 
+            onclick="convertTemperature()"
+            class="convert-btn w-full mt-6 py-3 px-4 text-white font-medium rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          >
+            <i class="fas fa-exchange-alt mr-2"></i> Convert Temperature
+          </button>
+        </div>
+
+        <!-- Visual Thermometer -->
+        <div class="flex flex-col items-center">
+          <div class="bg-white rounded-xl shadow-xl p-6 w-full">
+            <div class="flex justify-center mb-6">
+              <div class="thermometer">
+                <div id="mercury" class="mercury" style="height: 30%;"></div>
+              </div>
+            </div>
+            <div class="text-center mt-4">
+              <h3 class="font-medium text-gray-800">Current Conversion</h3>
+              <div id="result" class="text-2xl font-bold text-blue-600 mt-2">---</div>
+              <div id="formula" class="text-xs text-gray-500 mt-1 italic">Select values to see formula</div>
+            </div>
+          </div>
+          
+          <div class="mt-6 bg-white rounded-xl shadow-xl p-4 w-full">
+            <h3 class="font-medium text-gray-800 mb-2">Common Conversions</h3>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="quickConvert(0, 'celsius', 'fahrenheit')" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 py-1 px-2 rounded">°C → °F</button>
+              <button onclick="quickConvert(0, 'fahrenheit', 'celsius')" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 py-1 px-2 rounded">°F → °C</button>
+              <button onclick="quickConvert(0, 'celsius', 'kelvin')" class="text-xs bg-green-50 hover:bg-green-100 text-green-600 py-1 px-2 rounded">°C → K</button>
+              <button onclick="quickConvert(0, 'kelvin', 'fahrenheit')" class="text-xs bg-green-50 hover:bg-green-100 text-green-600 py-1 px-2 rounded">K → °F</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Formula Reference -->
+      <div class="mt-12 bg-white rounded-xl shadow-xl p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Conversion Formulas</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <h3 class="font-medium text-gray-700 mb-2">Celsius to Fahrenheit</h3>
+            <p class="text-sm text-gray-600">°F = (°C × 9/5) + 32</p>
+          </div>
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <h3 class="font-medium text-gray-700 mb-2">Fahrenheit to Celsius</h3>
+            <p class="text-sm text-gray-600">°C = (°F - 32) × 5/9</p>
+          </div>
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <h3 class="font-medium text-gray-700 mb-2">Celsius to Kelvin</h3>
+            <p class="text-sm text-gray-600">K = °C + 273.15</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-gray-100 py-6 mt-12">
+    <div class="container mx-auto px-4 text-center text-gray-600 text-sm">
+      <p>ThermoScale - Accurate temperature conversions for science, cooking, and everyday use</p>
+      <p class="mt-1">© 2025 Priyanka Meter. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    function convertTemperature() {
+      const temperature = parseFloat(document.getElementById('temperature').value);
+      const fromUnit = document.getElementById('fromUnit').value;
+      const toUnit = document.getElementById('toUnit').value;
+      
+      if (isNaN(temperature)) {
+        document.getElementById('result').innerText = "Please enter a valid number";
+        return;
+      }
+      
+      // Convert to Celsius first
+      let celsiusTemp;
+      switch (fromUnit) {
+        case 'celsius':
+          celsiusTemp = temperature;
+          break;
+        case 'fahrenheit':
+          celsiusTemp = (temperature - 32) * 5 / 9;
+          break;
+        case 'kelvin':
+          celsiusTemp = temperature - 273.15;
+          break;
+      }
+      
+      // Convert from Celsius to target unit
+      let result;
+      let formulaText = "";
+      switch (toUnit) {
+        case 'celsius':
+          result = celsiusTemp;
+          formulaText = `${celsiusTemp.toFixed(2)}°C`;
+          break;
+        case 'fahrenheit':
+          result = (celsiusTemp * 9 / 5) + 32;
+          formulaText = `(${celsiusTemp.toFixed(2)} × 9/5) + 32 = ${result.toFixed(2)}°F`;
+          break;
+        case 'kelvin':
+          result = celsiusTemp + 273.15;
+          formulaText = `${celsiusTemp.toFixed(2)} + 273.15 = ${result.toFixed(2)}K`;
+          break;
+      }
+      
+      // Update visual thermometer (0% = absolute zero, 100% = 100°C)
+      let mercuryHeight;
+      if (fromUnit === 'kelvin') {
+        mercuryHeight = ((temperature - 273.15) / 100) * 100;
+      } else if (fromUnit === 'fahrenheit') {
+        mercuryHeight = ((temperature - 32) * 5 / 9 / 100) * 100;
+      } else {
+        mercuryHeight = (temperature / 100) * 100;
+      }
+      mercuryHeight = Math.min(Math.max(mercuryHeight, 0), 100); // Clamp between 0-100%
+      document.getElementById('mercury').style.height = `${mercuryHeight}%`;
+      
+      // Display result
+      document.getElementById('result').innerHTML = 
+        `${temperature} ${getUnitSymbol(fromUnit)} = <br><span class="text-3xl">${result.toFixed(2)} ${getUnitSymbol(toUnit)}</span>`;
+      
+      document.getElementById('formula').innerText = formulaText;
+    }
+    
+    function quickConvert(temp, from, to) {
+      document.getElementById('temperature').value = temp === 0 ? '' : temp;
+      document.getElementById('fromUnit').value = from;
+      document.getElementById('toUnit').value = to;
+      if (temp !== 0) convertTemperature();
+    }
+    
+    function getUnitSymbol(unit) {
+      switch (unit) {
+        case 'celsius': return '°C';
+        case 'fahrenheit': return '°F';
+        case 'kelvin': return 'K';
+        default: return '';
+      }
+    }
+    
+    // Initialize with empty values
+    document.getElementById('temperature').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        convertTemperature();
+      }
+    });
+  </script>
+</body>
+</html>
